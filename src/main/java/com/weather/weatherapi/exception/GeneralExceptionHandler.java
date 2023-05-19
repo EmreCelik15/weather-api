@@ -1,26 +1,60 @@
 package com.weather.weatherapi.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.validation.ConstraintViolationException;
+import javax.validation.constraints.NotNull;
+import java.util.*;
 
 /**
  * @author EmreÇelik
  * @Date 1.05.2023
  */
 @RestControllerAdvice
-public class GeneralExceptionHandler {
+public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  @NotNull HttpHeaders headers,
+                                                                  @NotNull HttpStatus status,
+                                                                  @NotNull WebRequest request) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(JsonProcessingException.class)
-    public ResponseEntity<?> handleJsonProcessingException(JsonProcessingException jsonProcessingException){
-        String error="message: "+jsonProcessingException.getMessage()+"/n"+
-                "originalMessage: " +jsonProcessingException.getOriginalMessage();
+    public ResponseEntity<?> handleJsonProcessingException(JsonProcessingException jsonProcessingException) {
+        String error = "message: " + jsonProcessingException.getMessage() + "/n" +
+                "originalMessage: " + jsonProcessingException.getOriginalMessage();
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException constraintViolationException) {
+        List<String> errors = new ArrayList<>();
+        constraintViolationException.getConstraintViolations().forEach(constraintViolation -> {
+            String errorMessage = constraintViolation.getMessage();
+            errors.add(errorMessage);
+        });
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RequestNotPermitted.class)
+    protected ResponseEntity<?> handleRequestNotPermittedException(RequestNotPermitted requestNotPermitted) {
+        return new ResponseEntity<>(requestNotPermitted.getMessage(),HttpStatus.TOO_MANY_REQUESTS);
     }
 }
