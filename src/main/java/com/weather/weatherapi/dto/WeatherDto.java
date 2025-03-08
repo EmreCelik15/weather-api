@@ -3,7 +3,7 @@ package com.weather.weatherapi.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.weather.weatherapi.model.Weather;
 
-import javax.persistence.Entity;
+
 import java.time.LocalDateTime;
 
 /**
@@ -16,15 +16,16 @@ public class WeatherDto {
     private Integer temperature;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime updatedTime;
-    public static WeatherDto convert(Weather from){
-        return new WeatherDto(from.getCountry(),from.getCityName(),from.getTemperature(),from.getUpdatedTime());
+
+    public static WeatherDto convert(Weather from) {
+        return new WeatherDto(from.getCountry(), from.getCityName(), from.getTemperature(), from.getUpdatedTime());
     }
 
-    public WeatherDto(String cityName, String country, Integer temperature,LocalDateTime updatedTime) {
+    public WeatherDto(String cityName, String country, Integer temperature, LocalDateTime updatedTime) {
         this.cityName = cityName;
         this.country = country;
         this.temperature = temperature;
-        this.updatedTime=updatedTime;
+        this.updatedTime = updatedTime;
     }
 
     public WeatherDto() {
