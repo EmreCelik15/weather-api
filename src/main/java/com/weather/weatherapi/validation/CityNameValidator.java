@@ -26,7 +26,6 @@ public class CityNameValidator implements ConstraintValidator<CityNameConstraint
         value = value.replaceAll("[^a-zA-Z0-9]", "");
         boolean isValid = !StringUtils.isNumeric(value) && !StringUtils.isAllBlank(value);
         if (!isValid) {
-
             context.buildConstraintViolationWithTemplate(value).addConstraintViolation();
             logger.info("The city parameter is not valid. value:" + value);
         }
