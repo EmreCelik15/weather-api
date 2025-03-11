@@ -2,6 +2,7 @@ package com.weather.weatherapi.controller;
 
 import com.weather.weatherapi.authentication.JwtService;
 import com.weather.weatherapi.dto.LoginRequest;
+import com.weather.weatherapi.dto.LoginResponse;
 import com.weather.weatherapi.dto.UserDto;
 import com.weather.weatherapi.dto.UserRegistrationRequest;
 import com.weather.weatherapi.service.AuthService;
@@ -35,17 +36,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.username(),
-                        request.password()
-                )
-        );
-
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String jwt = jwtService.generateToken(userDetails);
-        return ResponseEntity.ok(jwt);
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.loginUser(request));
     }
 
     @PostMapping("/register")

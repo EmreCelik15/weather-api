@@ -27,6 +27,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "password_no_hash")
+    private String passwordNoHash;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",
@@ -34,7 +37,7 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
-    @Column(name="created_date")
+    @Column(name = "created_date")
     private LocalDateTime createdDate = LocalDateTime.now();
     @Column(name = "enabled")
     private boolean enabled = true; // Hesap aktif mi?
@@ -81,6 +84,14 @@ public class User implements UserDetails {
 
     public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public String getPasswordNoHash() {
+        return passwordNoHash;
+    }
+
+    public void setPasswordNoHash(String passwordNoHash) {
+        this.passwordNoHash = passwordNoHash;
     }
 
     // --------------------------
