@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public record UserDto(Long Id, String username, String password, String passwordNoHash, String role,
                       String createdDate) {
 
-    public static UserDto convert(User from) {
+    public static UserDto convertToUserDto(User from) {
         return new UserDto(from.getId(), from.getUsername(), from.getPassword(), from.getPasswordNoHash(), String.valueOf(from.getRoles().stream().map(
                 Role::getName).collect(Collectors.toList())), from.getCreatedDate().toString());
     }

@@ -26,7 +26,8 @@ public class UserService {
         if (user.getRoles().contains(role)) {
             throw new RuntimeException("Kullanıcı zaten bu role sahip:" + role);
         }
-        UserDto userDto = UserDto.convert(userRepository.save(user));
+        user.getRoles().add(role);
+        UserDto userDto = UserDto.convertToUserDto(userRepository.save(user));
         return userDto;
     }
 }
