@@ -49,10 +49,10 @@ public class AuthService {
             Role defaultRole = roleRepository.findByName("USER").orElseThrow(() -> new Exception("Role Not Found!"));
             user.getRoles().add(defaultRole);
             userRepository.save(user);
-            return UserDto.convertToUserDto(user);
+            return UserDto.convertUserToUserDto(user);
         } else {
             User user = userRepository.findByUsername(request.username()).get();
-            return UserDto.convertToUserDto(user);
+            return UserDto.convertUserToUserDto(user);
         }
     }
 

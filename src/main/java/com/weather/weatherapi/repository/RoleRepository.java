@@ -17,4 +17,6 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     boolean existsByName(String name);
 
     Page<Role> findAll(Pageable pageable);
+
+    Long deleteRoleById(Long id);
 }

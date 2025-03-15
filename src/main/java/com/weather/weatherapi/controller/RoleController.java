@@ -44,4 +44,9 @@ public class RoleController {
     public GenericResponse<RoleDto> getRole(@PathVariable @Positive(message = "ID pozitif bir sayı olmalıdır!") Long id) {
         return roleService.getRole(id);
     }
+
+    @DeleteMapping("/delete/{id}")
+    public GenericResponse<RoleDto> deleteRole(@PathVariable @Positive(message = "ID pozitif bir sayı olmalıdır!") Long id) {
+        return roleService.deleteRole(id);
+    }
 }

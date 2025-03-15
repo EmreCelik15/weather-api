@@ -5,6 +5,8 @@ import com.weather.weatherapi.dto.RoleDto;
 import com.weather.weatherapi.model.Role;
 import com.weather.weatherapi.repository.RoleRepository;
 import com.weather.weatherapi.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.Positive;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
@@ -46,7 +48,7 @@ public class RoleService {
 
     public GenericResponse<Page<RoleDto>> getAllRole(Pageable pageable) {
         logger.info("Roller getirildi!");
-        Page<RoleDto> roles=RoleDto.converToAllRoleDto(roleRepository.findAll(pageable));
+        Page<RoleDto> roles = RoleDto.converToAllRoleDto(roleRepository.findAll(pageable));
         logger.info("Roller getirildi!");
         return new GenericResponse<>(true, "Tüm Roller Getirildi!", roles);
     }
@@ -57,5 +59,17 @@ public class RoleService {
         }
         logger.info("Rol getirildi!");
         return new GenericResponse<>(true, "Rol Getirildi!", RoleDto.convertToRoleDto(roleRepository.findById(id).get()));
+    }
+
+    @Transactional
+    public GenericResponse<RoleDto> deleteRole(Long id) {
+        if (roleRepository.findById(id).isEmpty()) {
+            throw new RuntimeException("Role bulunamadı!");
+        }
+        logger.info("Rol siliniyor!");
+        RoleDto roleDto = RoleDto.convertToRoleDto(roleRepository.findById(id).get());
+        logger.info("Rol silindi!");
+        roleRepository.deleteRoleById(id);
+        return new GenericResponse<>(true, "Rol silindi!", roleDto);
     }
 }

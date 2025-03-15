@@ -40,16 +40,25 @@ public class User implements UserDetails {
     @Column(name = "created_date")
     private LocalDateTime createdDate = LocalDateTime.now();
     @Column(name = "enabled")
-    private boolean enabled = true; // Hesap aktif mi?
+    private Boolean enabled = true; // Hesap aktif mi?
     @Column(name = "account_non_expired")
-    private boolean accountNonExpired = true; // Hesap süresi dolmuş mu?
+    private Boolean accountNonExpired = true; // Hesap süresi dolmuş mu?
     @Column(name = "account_non_locked")
-    private boolean accountNonLocked = true; // Hesap kilitli mi?
+    private Boolean accountNonLocked = true; // Hesap kilitli mi?
     @Column(name = "credentials_non_expired")
-    private boolean credentialsNonExpired = true; // Şifre süresi dolmuş mu?
+    private Boolean credentialsNonExpired = true; // Şifre süresi dolmuş mu?
 
     // JPA için boş constructor
     public User() {
+    }
+
+    public User(Long id, String username, String password, String passwordNoHash, Set<Role> roles, LocalDateTime createdDate) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.passwordNoHash = passwordNoHash;
+        this.roles = roles;
+        this.createdDate = createdDate;
     }
 
     // Getter ve Setter metodları
