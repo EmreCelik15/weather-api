@@ -38,8 +38,10 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         /* .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**","h2-console/login.do/**")*/
-                        .requestMatchers("/**")
+                        .requestMatchers("/api/auth/**", "/swagger-ui/**","/v3/**","/h2-console/**")
                         .permitAll()
+                        .anyRequest()
+                        .authenticated()
 
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))

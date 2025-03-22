@@ -21,7 +21,7 @@ public record UserDto(Long Id, String username, String password, String password
 
     public static UserDto convertUserToUserDto(User from) {
         return new UserDto(from.getId(), from.getUsername(), from.getPassword(), from.getPasswordNoHash(), String.valueOf(from.getRoles().stream().map(
-                Role::getName).collect(Collectors.toList())), from.getCreatedDate().toString());
+                Role::getName).collect(Collectors.toList())), from.getCreatedDate() == null ? null : from.getCreatedDate().toString());
     }
 
     public static Page<UserDto> converToAllUserDto(Page<User> users) {

@@ -18,7 +18,7 @@ public class ExampleController {
 
     @GetMapping("/send")
     public String sendMessage(@RequestParam String message) {
-        messageProducer.sendMessage(message);
+        messageProducer.requestWeather(message);
         return "Mesaj gönderildi: " + message;
     }
 }

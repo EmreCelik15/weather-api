@@ -42,7 +42,7 @@ public class WeatherController {
     @GetMapping("/async/{city}")
     public String getWeatherByCityNameAsync(@PathVariable(value = "city") @CityNameConstraint @NotBlank
                                             String city) {
-        messageProducer.sendMessage(city);
+        messageProducer.requestWeather(city);
         return "İstek kuyruğa alındı. İşlem başlatıldı!";
     }
 }

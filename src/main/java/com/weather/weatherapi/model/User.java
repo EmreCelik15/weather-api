@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,7 +36,7 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
-    @Column(name = "created_date")
+    @Column(name = "created_date", nullable = true)
     private LocalDateTime createdDate = LocalDateTime.now();
     @Column(name = "enabled")
     private Boolean enabled = true; // Hesap aktif mi?

@@ -12,7 +12,7 @@ public class MessageProducer {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void sendMessage(String city) {
+    public void requestWeather(String city) {
         rabbitTemplate.convertAndSend(
                 "weather.exchange",   // Exchange adı
                 "weatherRoutingKey", // Routing key

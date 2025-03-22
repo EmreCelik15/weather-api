@@ -5,10 +5,12 @@ import com.weather.weatherapi.dto.UserDto;
 import com.weather.weatherapi.dto.UserRegistrationRequest;
 import com.weather.weatherapi.service.UserService;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,15 +24,20 @@ public class UserController {
     }
 
     @PostMapping("/addrole/{userId}/{roleId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     public GenericResponse<UserDto> addUserRole(@PathVariable Long userId, @PathVariable Long roleId) {
         return userService.addUserRole(userId, roleId);
     }
+
+
     @PostMapping("/add")
-    public GenericResponse<UserDto> addUser(@RequestBody UserRegistrationRequest userRegistrationRequest){
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    public GenericResponse<UserDto> addUser(@RequestBody UserRegistrationRequest userRegistrationRequest) {
         return userService.addUser(userRegistrationRequest);
     }
 
     @GetMapping("/getAll")
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     public GenericResponse<Page<UserDto>> getAllUser(@RequestParam(defaultValue = "0") int page,
                                                      @RequestParam(defaultValue = "10") int size,
                                                      @RequestParam(defaultValue = "id,asc") String sort) {
@@ -41,11 +48,14 @@ public class UserController {
     }
 
     @GetMapping("/getUser/{userId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     public GenericResponse<UserDto> getUser(@PathVariable Long userId) {
         return userService.getUser(userId);
     }
+
     @DeleteMapping("/delete/{userId}")
-    public GenericResponse<UserDto> deleteUser(@PathVariable Long userId){
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    public GenericResponse<UserDto> deleteUser(@PathVariable Long userId) {
         return userService.deleteUser(userId);
     }
 }

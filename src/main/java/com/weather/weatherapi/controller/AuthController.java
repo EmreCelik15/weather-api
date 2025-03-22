@@ -6,6 +6,10 @@ import com.weather.weatherapi.dto.LoginResponse;
 import com.weather.weatherapi.dto.UserDto;
 import com.weather.weatherapi.dto.UserRegistrationRequest;
 import com.weather.weatherapi.service.AuthService;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,7 +40,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+        LoginResponse loginResponse = authService.loginUser(request);
+        ResponseCookie cookie = ResponseCookie.from("jwt_token", loginResponse.jwt())
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(3600)
+                .sameSite("Strict").build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok(authService.loginUser(request));
     }
 
