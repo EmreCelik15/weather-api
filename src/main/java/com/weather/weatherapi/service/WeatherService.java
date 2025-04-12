@@ -2,11 +2,13 @@ package com.weather.weatherapi.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.weather.weatherapi.common.GenericResponse;
 import com.weather.weatherapi.constants.Constants;
 import com.weather.weatherapi.dto.WeatherDto;
 import com.weather.weatherapi.dto.WeatherResponse;
 import com.weather.weatherapi.model.Weather;
 import com.weather.weatherapi.repository.WeatherRepository;
+import jakarta.validation.constraints.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheConfig;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.annotation.PostConstruct;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -45,10 +48,10 @@ public class WeatherService {
         Optional<Weather> optionalWeather = weatherRepository.findFirstByRequestedCityNameOrderByUpdatedTimeDesc(city);
         return optionalWeather.map(weather -> {
             if (weather.getUpdatedTime().isBefore(LocalDateTime.now().minusSeconds(30))) {
-                return WeatherDto.convert(getWeatherFromWeatherStack(city));
+                return WeatherDto.convert(getWeatherFromWeatherStack(city).getData());
             }
             return WeatherDto.convert(weather);
-        }).orElseGet(() -> WeatherDto.convert(getWeatherFromWeatherStack(city)));
+        }).orElseGet(() -> WeatherDto.convert(getWeatherFromWeatherStack(city).getData()));
     }
 
     @CacheEvict(allEntries = true)
@@ -58,27 +61,37 @@ public class WeatherService {
         logger.info("Cache cleared.");
     }
 
-    private Weather getWeatherFromWeatherStack(String city) {
+    private GenericResponse<Weather> getWeatherFromWeatherStack(String city) {
         ResponseEntity<String> responseEntity = restTemplate.getForEntity
-                (Constants.API_URL + Constants.ACCESS_KEY_PARAM + Constants.API_KEY + Constants.QUERY_KEY_PARAM + city, String.class);
+                (Constants.API_URL + Constants.ACCESS_KEY_PARAM + Constants.API_KEY
+                        + Constants.QUERY_KEY_PARAM + city, String.class);
         try {
             WeatherResponse weatherResponse = objectMapper.readValue(responseEntity.getBody(), WeatherResponse.class);
-            return saveWeather(city, weatherResponse);
+            return new GenericResponse<>(true, city
+                    + " şehrine ait güncel hava durumu bilgisi getirildi.", saveWeather(city, weatherResponse).getData());
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            logger.error("JSON Parse Hatası", e);
+            return new GenericResponse<>(false, city
+                    + " şehrine ait güncel hava durumu bilgisi getirilemedi. Bir hata oluştu " + "Hata mesajı:" +
+                    e.getMessage(), null);
         }
     }
 
-    private Weather saveWeather(String city, WeatherResponse weatherResponse) {
+    private GenericResponse<Weather> saveWeather(String city, WeatherResponse weatherResponse) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        Weather weather = new Weather(
-                city,
-                weatherResponse.getLocation().getName(),
-                weatherResponse.getLocation().getCountry(),
-                weatherResponse.getCurrent().getTemperature(),
-                LocalDateTime.now(),
-                LocalDateTime.parse(weatherResponse.getLocation().getLocalTime(), dateTimeFormatter));
-        return weatherRepository.save(weather);
+        try {
+            Weather weather = new Weather(
+                    city,
+                    weatherResponse.getLocation().getName(),
+                    weatherResponse.getLocation().getCountry(),
+                    weatherResponse.getCurrent().getTemperature(),
+                    LocalDateTime.now(),
+                    LocalDateTime.parse(weatherResponse.getLocation().getLocalTime(), dateTimeFormatter));
+            return new GenericResponse<>(true, "", weatherRepository.save(weather));
+        } catch (NullPointerException e) {
+            return new GenericResponse<>(false, city
+                    + "şehrine ait hava Durumu Bilgisi Kaydedilemedi", null);
+        }
     }
 }
 

@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1/rabbit")
-public class ExampleController {
+public class MessagerController {
 
     private final MessageProducer messageProducer;
 
-    public ExampleController(MessageProducer messageProducer) {
+    public MessagerController(MessageProducer messageProducer) {
         this.messageProducer = messageProducer;
     }
 

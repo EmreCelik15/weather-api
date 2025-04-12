@@ -18,6 +18,8 @@ public class Current {
     private List<String> weatherIcons;
     @JsonProperty("weather_descriptions")
     private List<String> weatherDescriptions;
+    @JsonProperty("astro")
+    private Astro astro;
     @JsonProperty("wind_speed")
     private Integer windSpeed;
     @JsonProperty("wind_degree")

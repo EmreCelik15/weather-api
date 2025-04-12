@@ -43,6 +43,6 @@ public class WeatherController {
     public String getWeatherByCityNameAsync(@PathVariable(value = "city") @CityNameConstraint @NotBlank
                                             String city) {
         messageProducer.requestWeather(city);
-        return "İstek kuyruğa alındı. İşlem başlatıldı!";
+        return "İstek kuyruğa alındı. İşlem tamamlandı!";
     }
 }
