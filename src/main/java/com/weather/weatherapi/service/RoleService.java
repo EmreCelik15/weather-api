@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Positive;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,14 +44,16 @@ public class RoleService {
         logger.info("Rol ekleniyor!");
         role.setCreatedBy(userId);
         logger.info("Rol eklendi!");
-        return new GenericResponse<>(true, "Rol Eklendi!", RoleDto.convertToRoleDto(roleRepository.save(role)));
+        return new GenericResponse<>(true, "Rol Eklendi!", RoleDto.convertToRoleDto(roleRepository.save(role)),
+                HttpStatus.OK);
     }
 
     public GenericResponse<Page<RoleDto>> getAllRole(Pageable pageable) {
         logger.info("Roller getirildi!");
         Page<RoleDto> roles = RoleDto.converToAllRoleDto(roleRepository.findAll(pageable));
         logger.info("Roller getirildi!");
-        return new GenericResponse<>(true, "Tüm Roller Getirildi!", roles);
+        return new GenericResponse<>(true, "Tüm Roller Getirildi!", roles,
+                HttpStatus.OK);
     }
 
     public GenericResponse<RoleDto> getRole(Long id) {
@@ -58,7 +61,8 @@ public class RoleService {
             throw new RuntimeException("Role bulunamadı!");
         }
         logger.info("Rol getirildi!");
-        return new GenericResponse<>(true, "Rol Getirildi!", RoleDto.convertToRoleDto(roleRepository.findById(id).get()));
+        return new GenericResponse<>(true, "Rol Getirildi!", RoleDto.convertToRoleDto(roleRepository.findById(id).get()),
+                HttpStatus.OK);
     }
 
     @Transactional
@@ -70,6 +74,6 @@ public class RoleService {
         RoleDto roleDto = RoleDto.convertToRoleDto(roleRepository.findById(id).get());
         logger.info("Rol silindi!");
         roleRepository.deleteRoleById(id);
-        return new GenericResponse<>(true, "Rol silindi!", roleDto);
+        return new GenericResponse<>(true, "Rol silindi!", roleDto, HttpStatus.OK);
     }
 }

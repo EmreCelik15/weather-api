@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -48,10 +49,10 @@ public class WeatherService {
         Optional<Weather> optionalWeather = weatherRepository.findFirstByRequestedCityNameOrderByUpdatedTimeDesc(city);
         return optionalWeather.map(weather -> {
             if (weather.getUpdatedTime().isBefore(LocalDateTime.now().minusSeconds(30))) {
-                return WeatherDto.convert(getWeatherFromWeatherStack(city).getData());
+                return WeatherDto.convert(getWeatherFromWeatherStack(city).getBody().getData());
             }
             return WeatherDto.convert(weather);
-        }).orElseGet(() -> WeatherDto.convert(getWeatherFromWeatherStack(city).getData()));
+        }).orElseGet(() -> WeatherDto.convert(getWeatherFromWeatherStack(city).getBody().getData()));
     }
 
     @CacheEvict(allEntries = true)
@@ -61,19 +62,20 @@ public class WeatherService {
         logger.info("Cache cleared.");
     }
 
-    private GenericResponse<Weather> getWeatherFromWeatherStack(String city) {
+    private ResponseEntity<GenericResponse<Weather>> getWeatherFromWeatherStack(String city) {
         ResponseEntity<String> responseEntity = restTemplate.getForEntity
                 (Constants.API_URL + Constants.ACCESS_KEY_PARAM + Constants.API_KEY
                         + Constants.QUERY_KEY_PARAM + city, String.class);
         try {
             WeatherResponse weatherResponse = objectMapper.readValue(responseEntity.getBody(), WeatherResponse.class);
-            return new GenericResponse<>(true, city
-                    + " şehrine ait güncel hava durumu bilgisi getirildi.", saveWeather(city, weatherResponse).getData());
+            return ResponseEntity.ok().body(new GenericResponse<>(true, city
+                    + " şehrine ait güncel hava durumu bilgisi getirildi.", saveWeather(city, weatherResponse).getData(),
+                    HttpStatus.OK));
         } catch (JsonProcessingException e) {
             logger.error("JSON Parse Hatası", e);
-            return new GenericResponse<>(false, city
+            return ResponseEntity.badRequest().body(new GenericResponse<>(false, city
                     + " şehrine ait güncel hava durumu bilgisi getirilemedi. Bir hata oluştu " + "Hata mesajı:" +
-                    e.getMessage(), null);
+                    e.getMessage(), null, HttpStatus.BAD_REQUEST));
         }
     }
 
@@ -87,10 +89,10 @@ public class WeatherService {
                     weatherResponse.getCurrent().getTemperature(),
                     LocalDateTime.now(),
                     LocalDateTime.parse(weatherResponse.getLocation().getLocalTime(), dateTimeFormatter));
-            return new GenericResponse<>(true, "", weatherRepository.save(weather));
+            return new GenericResponse<>(true, "", weatherRepository.save(weather), HttpStatus.OK);
         } catch (NullPointerException e) {
             return new GenericResponse<>(false, city
-                    + "şehrine ait hava Durumu Bilgisi Kaydedilemedi", null);
+                    + "şehrine ait hava Durumu Bilgisi Kaydedilemedi", null, HttpStatus.OK);
         }
     }
 }

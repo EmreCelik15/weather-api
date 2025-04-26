@@ -38,6 +38,8 @@ public class User implements UserDetails {
     private Set<Role> roles = new HashSet<>();
     @Column(name = "created_date", nullable = true)
     private LocalDateTime createdDate = LocalDateTime.now();
+    @Column(name = "last_login_date", nullable = true)
+    private LocalDateTime lastLoginDate = LocalDateTime.now();
     @Column(name = "enabled")
     private Boolean enabled = true; // Hesap aktif mi?
     @Column(name = "account_non_expired")
@@ -100,6 +102,13 @@ public class User implements UserDetails {
 
     public void setPasswordNoHash(String passwordNoHash) {
         this.passwordNoHash = passwordNoHash;
+    }
+    public LocalDateTime getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(LocalDateTime lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
     }
 
     // --------------------------

@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,7 +40,7 @@ public class UserService {
         }
         user.getRoles().add(role);
         UserDto userDto = UserDto.convertUserToUserDto(userRepository.save(user));
-        return new GenericResponse<>(true, "Kullanıcı Eklendi", userDto);
+        return new GenericResponse<>(true, "Kullanıcı Eklendi", userDto, HttpStatus.OK);
     }
 
     public GenericResponse<UserDto> addUser(UserRegistrationRequest userRegistrationRequest) {
@@ -56,20 +57,20 @@ public class UserService {
         user.setPasswordNoHash(userRegistrationRequest.password());
         UserDto userDto = UserDto.convertUserToUserDto(userRepository.save(user));
         logger.info("Kullanıcı eklendi!");
-        return new GenericResponse<>(true, "Kullanıcı Eklendi!", userDto);
+        return new GenericResponse<>(true, "Kullanıcı Eklendi!", userDto, HttpStatus.OK);
     }
 
     public GenericResponse<Page<UserDto>> getAllUsers(Pageable pageable) {
         Page<UserDto> users = UserDto.converToAllUserDto(userRepository.findAll(pageable));
-        return new GenericResponse<>(true, "Tüm Kullanıcılar Getirildi!", users);
+        return new GenericResponse<>(true, "Tüm Kullanıcılar Getirildi!", users, HttpStatus.OK);
     }
 
     public GenericResponse<UserDto> getUser(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new RuntimeException("Kullanıcı Bulunamadı!");
+            throw new UsernameNotFoundException("Kullanıcı Bulunamadı!");
         }
         UserDto userDto = UserDto.convertUserToUserDto(userRepository.findById(userId).get());
-        return new GenericResponse<>(true, "Kullanıcı Getirildi!", userDto);
+        return new GenericResponse<>(true, "Kullanıcı Getirildi!", userDto, HttpStatus.OK);
     }
 
     @Transactional
@@ -79,6 +80,6 @@ public class UserService {
         }
         UserDto userDto = UserDto.convertUserToUserDto(userRepository.findById(userId).get());
         userRepository.deleteUserById(userId);
-        return new GenericResponse<>(true, "Kullanıcı Silindi", userDto);
+        return new GenericResponse<>(true, "Kullanıcı Silindi", userDto, HttpStatus.OK);
     }
 }

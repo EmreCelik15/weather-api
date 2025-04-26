@@ -1,20 +1,17 @@
 package com.weather.weatherapi.controller;
 
 import com.weather.weatherapi.authentication.JwtService;
+import com.weather.weatherapi.common.GenericResponse;
 import com.weather.weatherapi.dto.LoginRequest;
 import com.weather.weatherapi.dto.LoginResponse;
 import com.weather.weatherapi.dto.UserDto;
 import com.weather.weatherapi.dto.UserRegistrationRequest;
 import com.weather.weatherapi.service.AuthService;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,12 +46,12 @@ public class AuthController {
                 .maxAge(3600)
                 .sameSite("Strict").build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        return ResponseEntity.ok(authService.loginUser(request));
+        return ResponseEntity.ok(loginResponse);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserDto> register(@RequestBody UserRegistrationRequest userRegistrationRequest) throws Exception {
-        return ResponseEntity.ok(authService.registerUser(userRegistrationRequest));
+    public ResponseEntity<GenericResponse<UserDto>> register(@RequestBody UserRegistrationRequest userRegistrationRequest) throws Exception {
+        return authService.registerUser(userRegistrationRequest);
     }
 }
 
