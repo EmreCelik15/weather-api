@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class WeatherResponse {
     private Request request;
     private Location location;
+
     private Current current;
 
     public Request getRequest() {
@@ -23,4 +24,5 @@ public class WeatherResponse {
     public Current getCurrent() {
         return current;
     }
+
 }

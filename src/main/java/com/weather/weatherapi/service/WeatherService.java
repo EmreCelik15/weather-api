@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 import jakarta.annotation.PostConstruct;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
@@ -68,6 +69,7 @@ public class WeatherService {
                         + Constants.QUERY_KEY_PARAM + city, String.class);
         try {
             WeatherResponse weatherResponse = objectMapper.readValue(responseEntity.getBody(), WeatherResponse.class);
+            logger.info("Weather Response: {}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseEntity.getBody()));
             return ResponseEntity.ok().body(new GenericResponse<>(true, city
                     + " şehrine ait güncel hava durumu bilgisi getirildi.", saveWeather(city, weatherResponse).getData(),
                     HttpStatus.OK));
@@ -80,7 +82,6 @@ public class WeatherService {
     }
 
     private GenericResponse<Weather> saveWeather(String city, WeatherResponse weatherResponse) {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         try {
             Weather weather = new Weather(
                     city,
@@ -88,7 +89,13 @@ public class WeatherService {
                     weatherResponse.getLocation().getCountry(),
                     weatherResponse.getCurrent().getTemperature(),
                     LocalDateTime.now(),
-                    LocalDateTime.parse(weatherResponse.getLocation().getLocalTime(), dateTimeFormatter));
+                    LocalDateTime.parse(weatherResponse.getLocation().getLocalTime(), DateTimeFormatterService.dateTimeFormatterToDetailTime),
+                    LocalTime.parse(weatherResponse.getCurrent().getAstro().getSunRise(), DateTimeFormatterService.dateTimeFormatterToRiseAndSetDate),
+                    LocalTime.parse(weatherResponse.getCurrent().getAstro().getSunSet(), DateTimeFormatterService.dateTimeFormatterToRiseAndSetDate),
+                    LocalTime.parse(weatherResponse.getCurrent().getAstro().getMoonRise(), DateTimeFormatterService.dateTimeFormatterToRiseAndSetDate),
+                    LocalTime.parse(weatherResponse.getCurrent().getAstro().getMoonSet(), DateTimeFormatterService.dateTimeFormatterToRiseAndSetDate),
+                    weatherResponse.getCurrent().getAstro().getMoonPhase(),
+                    weatherResponse.getCurrent().getAirQuality().getCo());
             return new GenericResponse<>(true, "", weatherRepository.save(weather), HttpStatus.OK);
         } catch (NullPointerException e) {
             return new GenericResponse<>(false, city

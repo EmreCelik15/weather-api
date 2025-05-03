@@ -36,7 +36,7 @@ public class MessageConsumer {
         } catch (Exception e) {
             logger.error("Mesaj işlenirken hata oluştu.", e);
             try {
-                // Hata durumunda mesajı yeniden kuyruğa almak için basicNack
+                // Hata durumunda mesajı yeniden kuyruğa almamakk için basicNack
                 channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
             } catch (IOException io) {
                 io.printStackTrace();

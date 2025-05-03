@@ -20,6 +20,8 @@ public class Current {
     private List<String> weatherDescriptions;
     @JsonProperty("astro")
     private Astro astro;
+    @JsonProperty("air_quality")
+    private AirQuality airQuality;
     @JsonProperty("wind_speed")
     private Integer windSpeed;
     @JsonProperty("wind_degree")
@@ -101,5 +103,13 @@ public class Current {
 
     public String getIsDay() {
         return isDay;
+    }
+
+    public Astro getAstro() {
+        return astro;
+    }
+
+    public AirQuality getAirQuality() {
+        return airQuality;
     }
 }
